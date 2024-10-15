@@ -1,18 +1,20 @@
 import { Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import RecipeCard from '../components/RecipeCard';
+import RecipeModal from '../components/RecipeModal';
 
 
-const recipess = [
-    { name: 'Mashed potatoes', prepTime: '20 min', ingredients:['pula mea pe paine', 'pula'], instructions:['o iei si o mananci','pula'] },
-    { name: 'Grilled Chicken', prepTime: '30 min', ingredients:['pula mea pe paine', 'pula'], instructions:['o iei si o mananci','pula'] },
-];
+// const recipess = [
+//     { name: 'Mashed potatoes', prepTime: '20 min', ingredients:['pula mea pe paine', 'pula'], instructions:['o iei si o mananci','pula'] },
+//     { name: 'Grilled Chicken', prepTime: '30 min', ingredients:['pula mea pe paine', 'pula'], instructions:['o iei si o mananci','pula'] },
+// ];
 
 const HomePage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [recipes, setRecipes] = useState<Array<{ name: string; prepTime: string; ingredients: string[]; instructions: string[] }>>([]);
     const [loading, setLoading] = useState<boolean>(false);  // New loading state
     const [error, setError] = useState<string | null>(null);  // New error state
+    const [selectedRecipe, setSelectedRecipe] = useState<{ name: string; prepTime: string; ingredients: string[]; instructions: string[] } | null>(null);
 
     const searchRecipes = async () => {
         if (!searchTerm) return; // If no search term is entered, do nothing
@@ -48,7 +50,16 @@ const HomePage: React.FC = () => {
             setLoading(false);  // Set loading to false when search is complete
         }
     };
+ 
+    const handleCardClick = (recipe: { name: string; prepTime: string; ingredients: string[]; instructions: string[] }) => {
+        setSelectedRecipe(recipe);  // Open the modal with the selected recipe
+    };
 
+    const closeModal = () => {
+        setSelectedRecipe(null);  // Close the modal
+    }
+
+    // Only for testing:
     useEffect(() => {
         console.log("Recipes are: ", recipes)
     }, [recipes]);
@@ -78,13 +89,14 @@ const HomePage: React.FC = () => {
                  
                 {!loading && !error && recipes.length > 0 ? (
                         recipes.map((recipe, index) => (
+                            <div key={index} onClick={() => handleCardClick(recipe)}>
                             <RecipeCard
-                                key={index}
                                 title={recipe.name}
                                 time={recipe.prepTime}
                                 ingredients={recipe.ingredients}
                                 instructions={recipe.instructions}
                             />
+                            </div>
                         ))
                     ) : !loading && !error && recipes.length === 0 ? (
                         <p>No recipes found.</p>
@@ -92,6 +104,8 @@ const HomePage: React.FC = () => {
                        
                 </div>
             </div>
+            {selectedRecipe && <RecipeModal recipe={selectedRecipe} onClose={closeModal} />}
+
         </div>
     );
 };

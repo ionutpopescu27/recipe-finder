@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+# packages
+/src/context
 # testing
 /coverage
 

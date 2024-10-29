@@ -65,7 +65,7 @@ const HomePage: React.FC = () => {
     }, [recipes]);
 
     return (
-        <div className='bg-[#faf9fb] p-10 flex-1'>
+        <div className=' p-10 flex-1'>
             <div  className='max-w-screen-lg mx-auto'>
                 <form className='flex justify-center items-center mx-auto my-10 w-full max-w-lg'>
                     <label className='input shadow-md flex items-center gap-2'></label>
@@ -84,7 +84,9 @@ const HomePage: React.FC = () => {
                 </form>               
                 
                 <div className='space-y-4 mt-6'>
-                    {loading && <p>Loading recipes...</p>} {/* Show a loading message while fetching */}
+                    {loading && <div className='flex justify-center items-center'>
+                                    <p>Loading recipes...</p> {/* Show a loading message while fetching */}
+                                </div>}
                     {error && <p>{error}</p>} {/* Show error message if something goes wrong */}
                  
                 {!loading && !error && recipes.length > 0 ? (
@@ -99,7 +101,9 @@ const HomePage: React.FC = () => {
                             </div>
                         ))
                     ) : !loading && !error && recipes.length === 0 ? (
-                        <p>No recipes found.</p>
+                        <div className='flex justify-center items-center'>
+                            <p>No recipes found.</p>
+                        </div>
                     ) : null}
                        
                 </div>

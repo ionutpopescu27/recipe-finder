@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
-import { doc, setDoc } from 'firebase/firestore';
-import { FIREBASE_DB } from '../context/Firebase';
+import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { FIREBASE_DB, FIREBASE_AUTH } from '../context/Firebase';
 
 interface RecipeCardProps {
     title: string;
@@ -15,6 +15,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ title, time, ingredients, instr
     const handleAddToFavorites = async (e: React.MouseEvent) => {
 
         e.stopPropagation();
+
+        const user = FIREBASE_AUTH.currentUser;
+        if (!user) {
+            alert("You need to log in to save favorites!");
+            return;
+        }
         
         const favoriteRecipe = {
             title,
@@ -24,7 +30,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ title, time, ingredients, instr
         };
 
         try{    
-            await setDoc(doc(FIREBASE_DB, 'testingFavorites', title), favoriteRecipe);
+            const userRef = doc(FIREBASE_DB, 'users', user.uid);
+
+           await updateDoc(userRef, {
+                favorites: arrayUnion(favoriteRecipe)
+            });
             alert('Recipe added to favorites!');
         }catch(error){
             console.error('Error adding recipe to favorites:', error);

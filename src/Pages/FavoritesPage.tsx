@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FIREBASE_DB } from '../context/Firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../context/Firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import RecipeCard from '../components/RecipeCard';
 import RecipeModal from '../components/RecipeModal';
 
@@ -17,19 +17,33 @@ const FavoritesPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchFavorites = async () => {
-            
+        const fetchFavorites = async () => {            
+        const user = FIREBASE_AUTH.currentUser
+        
+        if(!user){
+            alert("No user found");
+            return;
+        }
 
             try {
-                const querySnapshot = await getDocs(collection(FIREBASE_DB, "testingFavorites"));
-                const favs: Recipe[] = querySnapshot.docs.map(doc => ({
-                    name: doc.data().title,
-                    prepTime: doc.data().time,
-                    ingredients: doc.data().ingredients,
-                    instructions: doc.data().instructions,
-                }));
-                setFavorites(favs);
-                console.log("Favorites:", favs)    
+                const userRef = doc(FIREBASE_DB, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const favs = userData.favorites ;  
+
+                    const normalizedFavorites = favs.map((recipe: any) => ({
+                        name: recipe.title || '',
+                        prepTime: recipe.time || '',
+                        ingredients: recipe.ingredients || [],
+                        instructions: recipe.instructions || []
+
+                    }));
+                    setFavorites(normalizedFavorites);
+                } else {
+                    console.error("No user document found.");
+                }
             } catch (error) { 
                 console.error("Error fetching favorites:", error);
             } finally {
@@ -41,20 +55,20 @@ const FavoritesPage: React.FC = () => {
     }, []); 
 
     const handleCardClick = (recipe: { name: string; prepTime: string; ingredients: string[]; instructions: string[] }) => {
-        setSelectedRecipe(recipe);  // Open the modal with the selected recipe
+        setSelectedRecipe(recipe);  
     };
 
     const closeModal = () => {
-        setSelectedRecipe(null);  // Close the modal
+        setSelectedRecipe(null);  
     }
 
     return (
-        <div className="p-10">
-            <h2 className="text-2xl font-bold mb-6">Your Favorite Recipes</h2>
+        <div className="flex-1 max-w-screen-lg mx-auto p-10">
+            <h2 className="text-2xl font-bold mb-6 flex justify-center">Your Favorite Recipes</h2>
             {loading ? (
                 <p>Loading favorites...</p>
             ) : favorites.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className=" space-y-4 mt-6">
                     {favorites.map((recipe, index) => (
                         <div key={index} onClick={() => handleCardClick(recipe)}>
                         <RecipeCard

@@ -1,4 +1,10 @@
-# Getting Started with Create React App
+# Overview
+
+This project is an AI-powered alternative for searching food recipes depending on the personal objective. 
+The user can prompt in the search bar what is desired and the query will be resolved using the OpenAI API. Recipes are returned in a card shape, that can be saved to the favorites page for future reference.
+Firebase was used in order to implement authentication and storage services in the project.
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
